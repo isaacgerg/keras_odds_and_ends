@@ -57,42 +57,12 @@ import matplotlib.pyplot as plt
 # Runs in tensorflow
 # Removed keras
 
-def convresblock(x, nfeats=8, ksize=3, nskipped=2, elu=True, deconv=False):
-    """The proposed residual block from [4].
-
-    Running with elu=True will use ELU nonlinearity and running with
-    elu=False will use BatchNorm + RELU nonlinearity.  While ELU's are fast
-    due to the fact they do not suffer from BatchNorm overhead, they may
-    overfit because they do not offer the stochastic element of the batch
-    formation process of BatchNorm, which acts as a good regularizer.
-
-    # Arguments
-        x: 4D tensor, the tensor to feed through the block
-        nfeats: Integer, number of feature maps for conv layers.
-        ksize: Integer, width and height of conv kernels in first convolution.
-        nskipped: Integer, number of conv layers for the residual function.
-        elu: Boolean, whether to use ELU or BN+RELU.
-
-    # Input shape
-        4D tensor with shape:
-        `(batch, channels, rows, cols)`
-
-    # Output shape
-        4D tensor with shape:
-        `(batch, filters, rows, cols)`
-    """
-    
-    y0 = tf.layers.conv2d(x, nfeats, [ksize, ksize], padding='SAME')
-    y = y0
-    for i in range(nskipped):
-        if elu:            
-            y = tf.nn.elu(y)
-        else:
-            print('abort')
-            #y = BatchNormalization(axis=1)(y)
-            #y = Activation('relu')(y)  
-        #y0 = tf.layers.conv2d(y, nfeats, [1,1], padding='same')    
-    #return tf.add(y0,y)
+def convresblock(x, nfeats=8, ksize=3, deconv=False):
+    if not deconv:
+        y = tf.layers.conv2d(x, nfeats, [ksize, ksize], padding='SAME')               
+    else:
+        y = tf.layers.conv2d_transpose(x, nfeats, [ksize, ksize], padding='SAME')               
+    y = tf.nn.elu(y)
     return y
 
 
@@ -174,7 +144,7 @@ for i in range(nlayers):
     out_shape = [in_shape[1]*pool_sizes[ind], in_shape[2]*pool_sizes[ind]]
     y = tf.image.resize_images(y, out_shape, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)    
     y = tf.multiply(y, wheres[ind][0])
-    unpoolingOutputs[ind] = convresblock(y, nfeats=nfeats_all[ind], ksize=ksize)
+    unpoolingOutputs[ind] = convresblock(y, nfeats=nfeats_all[ind], ksize=ksize, deconv=True)
     y = unpoolingOutputs[ind];
 
 # Define the model and it's mean square error loss, and compile it with Adam
