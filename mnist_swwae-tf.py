@@ -56,6 +56,7 @@ import matplotlib.pyplot as plt
 import keras.backend as K
 from keras import layers
 
+# Working now in tensorflow.
 
 def convresblock(x, nfeats=8, ksize=3, nskipped=2, elu=True):
     """The proposed residual block from [4].
