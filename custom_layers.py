@@ -81,6 +81,39 @@ class ifft2d(tf.keras.layers.Layer):
     #
 #
 #-----------------------------------------------------------------------------------------------------------------------
+class ifftshift2d(tf.keras.layers.Layer):
+    def __init__(self, **kwargs):
+        super(ifftshift2d, self).__init__(**kwargs)
+
+    def call(self, x):
+        assert(tf.keras.backend.ndim(x) == 4)
+        shiftX = x.shape[1].value
+        shiftY = x.shape[2].value
+        r = tf.keras.layers.Lambda(lambda x: tf.roll(x, shift=(-shiftX, -shiftY), axis=(1,2)))(x)
+        return r
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
+    #
+#
+#-----------------------------------------------------------------------------------------------------------------------
+class fftshift2d(tf.keras.layers.Layer):
+    def __init__(self, **kwargs):
+        super(fftshift2d, self).__init__(**kwargs)
+
+    def call(self, x):
+        assert(tf.keras.backend.ndim(x) == 4)
+        shiftX = x.shape[1].value
+        shiftY = x.shape[2].value
+        r = tf.keras.layers.Lambda(lambda x: tf.roll(x, shift=(shiftX, shiftY), axis=(1,2)))(x)
+        return r
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
+    #
+#
+
+#-----------------------------------------------------------------------------------------------------------------------
 class schlick(tf.keras.layers.Layer):
     def __init__(self, **kwargs):
         super(schlick, self).__init__(**kwargs)    
@@ -106,5 +139,6 @@ class schlick(tf.keras.layers.Layer):
         L = tf.keras.layers.Lambda(lambda x: tf.keras.backend.reshape(x, (-1, tileSize, tileSize, 1)))(L)
         
         return L
+    
 #-----------------------------------------------------------------------------------------------------------------------
 
