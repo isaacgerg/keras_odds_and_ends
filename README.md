@@ -15,6 +15,9 @@ FFT2D and IFFT2D layers. batchwise 2D FFT layers for image processing.
 
 Schlick dynamic range compression method with auto brightness algorithm. [2]
 
+References 
+======
+
 [1] 
 Stacked What-Where Auto-encoders
 Junbo Zhao, Michael Mathieu, Ross Goroshin, Yann LeCun
