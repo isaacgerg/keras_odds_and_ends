@@ -1,6 +1,40 @@
 import tensorflow as tf
 
 #-----------------------------------------------------------------------------------------------------------------------
+# Computes the norm channel-wise of all the vectors and does max-pooling based on it.
+class ChannelNormPooling(tf.keras.layers.Layer):
+    def __init__(self, pool_size=(2, 2), strides=None, padding='VALID', **kwargs):
+        super(ChannelNormPooling, self).__init__(**kwargs)
+        self.pool_size = pool_size
+        self.strides = strides or pool_size
+        self.padding = padding
+
+    def call(self, inputs):
+        # Compute channel-wise norms of the input tensor
+        norms = tf.norm(inputs, axis=-1)[:,:,:,None]
+        
+        pool, indices = tf.nn.max_pool_with_argmax(norms, ksize=self.pool_size, strides=self.strides, padding=self.padding, include_batch_in_index=False)
+        b,h_i,w_i, c = list(indices.shape)
+        b,h,w,c = list(inputs.shape)
+        
+        indices = tf.reshape(indices, (-1, h_i*w_i, 1))
+        iut_rs = tf.reshape(inputs, (-1, h * w , c))
+            
+        r = tf.gather_nd(iut_rs, indices, batch_dims=1)
+        r = tf.reshape(r, [-1, h_i, w_i, c])
+
+        return r
+
+    def get_config(self):
+        config = super(ChannelNormPooling, self).get_config()
+        config.update({
+            'pool_size': self.pool_size,
+            'strides': self.strides,
+            'padding': self.padding,
+        })
+        return config
+
+#-----------------------------------------------------------------------------------------------------------------------
 class whiten(tf.keras.layers.Layer):
     def build(self, input_shape):
         super(whiten, self).build(input_shape)  # Be sure to call this at the end
