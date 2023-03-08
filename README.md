@@ -8,6 +8,8 @@ mnist_swwae-pure-tf.py, same as above but uses pure tensorflow, no keras.
 
 mnist_swwae-pure-tf-paper.py, uses pure tensorflow but implements L2M error terms not computed in the above better matching derivation in paper [1]. 
 
+ChannelNormPooling - this does max-pooling but pools based on the channel-wise norm.  Thus, entire pixels with all their channels are pooled instead of pooling each channel independently.
+
 2D FFT
 ======
 
